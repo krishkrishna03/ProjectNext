@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ProjectNest — Final Year Projects</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0a0a0f;--surface:#13131a;--card:#1a1a24;--card2:#1e1e2c;
+  --accent:#f0c040;--accent2:#4f8fff;--green:#3ecf8e;--red:#ff5c5c;
+  --text:#e8e8f0;--muted:#7070a0;--border:#2a2a3a;--border2:#333345;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;overflow-x:hidden;}
+
+/* NOISE */
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:.35;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:18px 60px;background:rgba(10,10,15,0.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
+.nav-logo{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;color:var(--accent);cursor:pointer;}
+.nav-logo span{color:var(--text);}
+.nav-links{display:flex;gap:32px;list-style:none;}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:14px;font-weight:500;letter-spacing:.4px;transition:color .2s;cursor:pointer;}
+.nav-links a:hover{color:var(--text);}
+.nav-right{display:flex;gap:12px;align-items:center;}
+.nav-btn{background:transparent;color:var(--muted);border:1px solid var(--border);padding:8px 18px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;transition:all .2s;}
+.nav-btn:hover{border-color:var(--muted);color:var(--text);}
+.nav-btn.primary{background:var(--accent);color:#000;border-color:var(--accent);font-weight:700;}
+.nav-btn.primary:hover{background:#ffd060;}
+
+/* PAGES */
+.page{display:none;padding-top:70px;}
+.page.active{display:block;}
+
+/* ======= HOME PAGE ======= */
+.hero{min-height:100vh;display:flex;align-items:center;padding:80px 60px;position:relative;overflow:hidden;}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:60px 60px;opacity:.3;}
+.hero-glow{position:absolute;width:700px;height:700px;background:radial-gradient(circle,rgba(240,192,64,.07) 0%,transparent 70%);top:50%;left:40%;transform:translate(-50%,-50%);pointer-events:none;}
+.hero-content{position:relative;z-index:2;max-width:780px;}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--border);padding:6px 16px;font-size:12px;font-family:'DM Mono',monospace;color:var(--accent);letter-spacing:1px;margin-bottom:28px;animation:fadeUp .6s ease forwards;}
+.hero-badge::before{content:'';width:6px;height:6px;background:var(--accent);border-radius:50%;animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+.hero-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(56px,9vw,110px);line-height:.95;letter-spacing:2px;margin-bottom:24px;animation:fadeUp .6s .1s ease both;}
+.hero-title .y{color:var(--accent);}
+.hero-sub{font-size:17px;color:var(--muted);line-height:1.7;max-width:500px;margin-bottom:40px;font-weight:300;animation:fadeUp .6s .2s ease both;}
+.hero-actions{display:flex;gap:14px;flex-wrap:wrap;animation:fadeUp .6s .3s ease both;}
+.btn-primary{background:var(--accent);color:#000;border:none;padding:15px 34px;font-family:'DM Sans',sans-serif;font-weight:700;font-size:14px;cursor:pointer;transition:all .2s;letter-spacing:.5px;}
+.btn-primary:hover{transform:translateY(-3px);box-shadow:0 12px 32px rgba(240,192,64,.25);}
+.btn-ghost{background:transparent;color:var(--text);border:1px solid var(--border);padding:15px 34px;font-family:'DM Sans',sans-serif;font-weight:500;font-size:14px;cursor:pointer;transition:all .2s;letter-spacing:.5px;}
+.btn-ghost:hover{border-color:var(--muted);background:var(--card);}
+.hero-stats{display:flex;gap:44px;margin-top:60px;padding-top:36px;border-top:1px solid var(--border);animation:fadeUp .6s .4s ease both;}
+.stat-num{font-family:'Bebas Neue',sans-serif;font-size:40px;color:var(--accent);line-height:1;}
+.stat-label{font-size:11px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-top:4px;}
+
+/* MARQUEE */
+.marquee-wrap{border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:16px 0;overflow:hidden;background:var(--surface);}
+.marquee-track{display:flex;gap:56px;animation:marquee 22s linear infinite;white-space:nowrap;}
+.marquee-item{font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;flex-shrink:0;}
+.marquee-item span{color:var(--accent);margin-right:6px;}
+@keyframes marquee{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+
+/* DOMAINS SECTION */
+.domains-section{padding:100px 60px;}
+.sec-tag{font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);letter-spacing:3px;text-transform:uppercase;margin-bottom:14px;}
+.sec-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(38px,5.5vw,68px);line-height:1;letter-spacing:1px;margin-bottom:16px;}
+.sec-sub{color:var(--muted);font-size:15px;line-height:1.7;max-width:480px;font-weight:300;margin-bottom:56px;}
+.domains-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px;}
+.domain-card{background:var(--card);border:1px solid var(--border);padding:22px 20px;cursor:pointer;transition:all .25s;position:relative;overflow:hidden;}
+.domain-card::after{content:'';position:absolute;bottom:0;left:0;height:2px;width:0;background:var(--accent);transition:width .3s;}
+.domain-card:hover::after{width:100%;}
+.domain-card:hover{border-color:rgba(240,192,64,.4);transform:translateY(-5px);box-shadow:0 10px 30px rgba(0,0,0,.35);}
+.d-icon{font-size:26px;margin-bottom:12px;}
+.d-name{font-weight:600;font-size:14px;margin-bottom:4px;}
+.d-count{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;}
+.d-arrow{position:absolute;top:20px;right:20px;color:var(--border);font-size:18px;transition:color .2s,transform .2s;}
+.domain-card:hover .d-arrow{color:var(--accent);transform:translateX(3px);}
+
+/* HOW IT WORKS */
+.how-section{background:var(--surface);padding:100px 60px;}
+.steps-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;margin-top:56px;border:1px solid var(--border);}
+.step{background:var(--card);padding:36px 28px;border-right:1px solid var(--border);transition:background .3s;}
+.step:last-child{border-right:none;}
+.step:hover{background:#1e1e2e;}
+.step-n{font-family:'Bebas Neue',sans-serif;font-size:72px;color:var(--border);line-height:1;margin-bottom:12px;transition:color .3s;}
+.step:hover .step-n{color:rgba(240,192,64,.12);}
+.step-icon{font-size:26px;margin-bottom:14px;}
+.step-t{font-size:16px;font-weight:600;margin-bottom:8px;}
+.step-d{font-size:13px;color:var(--muted);line-height:1.7;font-weight:300;}
+
+/* ======= DOMAIN PAGE ======= */
+.domain-page-header{background:var(--surface);padding:48px 60px;border-bottom:1px solid var(--border);}
+.breadcrumb{font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);margin-bottom:20px;display:flex;align-items:center;gap:8px;}
+.breadcrumb span{cursor:pointer;transition:color .2s;}
+.breadcrumb span:hover{color:var(--accent);}
+.domain-page-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(44px,6vw,80px);letter-spacing:2px;margin-bottom:8px;}
+.domain-page-sub{color:var(--muted);font-size:15px;}
+.domain-page-body{padding:48px 60px;}
+.filter-bar{display:flex;gap:10px;margin-bottom:36px;flex-wrap:wrap;align-items:center;}
+.filter-btn{background:var(--card);border:1px solid var(--border);color:var(--muted);padding:8px 18px;font-size:12px;font-family:'DM Mono',monospace;cursor:pointer;transition:all .2s;letter-spacing:.5px;}
+.filter-btn.active,.filter-btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(240,192,64,.05);}
+.projects-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;}
+.project-card{background:var(--card);border:1px solid var(--border);padding:28px;cursor:pointer;transition:all .3s;position:relative;overflow:hidden;}
+.project-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent2),var(--accent));transform:scaleX(0);transition:transform .3s;transform-origin:left;}
+.project-card:hover::before{transform:scaleX(1);}
+.project-card:hover{border-color:var(--border2);transform:translateY(-4px);box-shadow:0 14px 36px rgba(0,0,0,.4);}
+.pc-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+.pc-tag{font-size:10px;font-family:'DM Mono',monospace;background:rgba(79,143,255,.1);border:1px solid rgba(79,143,255,.2);color:var(--accent2);padding:3px 10px;letter-spacing:.5px;}
+.pc-tag.hard{background:rgba(255,92,92,.1);border-color:rgba(255,92,92,.2);color:var(--red);}
+.pc-tag.med{background:rgba(240,192,64,.1);border-color:rgba(240,192,64,.2);color:var(--accent);}
+.pc-tag.easy{background:rgba(62,207,142,.1);border-color:rgba(62,207,142,.2);color:var(--green);}
+.pc-title{font-size:17px;font-weight:600;margin-bottom:8px;line-height:1.3;}
+.pc-desc{font-size:13px;color:var(--muted);line-height:1.65;font-weight:300;margin-bottom:18px;}
+.pc-footer{display:flex;justify-content:space-between;align-items:center;}
+.pc-price{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--accent);}
+.pc-price small{font-family:'DM Sans',sans-serif;font-size:11px;color:var(--muted);font-weight:400;letter-spacing:.5px;}
+.pc-btn{background:var(--accent);color:#000;border:none;padding:8px 18px;font-family:'DM Sans',sans-serif;font-weight:700;font-size:12px;cursor:pointer;transition:all .2s;}
+.pc-btn:hover{background:#ffd060;}
+
+/* ======= PROJECT DETAIL PAGE ======= */
+.proj-detail{padding:48px 60px;}
+.proj-header{display:grid;grid-template-columns:1fr 380px;gap:48px;margin-bottom:48px;align-items:start;}
+.proj-tags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+.proj-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,5vw,64px);letter-spacing:1.5px;margin-bottom:14px;line-height:1;}
+.proj-desc{font-size:15px;color:var(--muted);line-height:1.75;font-weight:300;margin-bottom:28px;}
+.proj-tech{display:flex;gap:8px;flex-wrap:wrap;}
+.tech-tag{background:var(--card);border:1px solid var(--border);color:var(--text);padding:6px 14px;font-size:12px;font-family:'DM Mono',monospace;}
+.proj-meta{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:28px;}
+.meta-item{background:var(--card);border:1px solid var(--border);padding:14px 18px;}
+.meta-label{font-size:10px;font-family:'DM Mono',monospace;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px;}
+.meta-val{font-size:15px;font-weight:600;}
+
+/* PURCHASE CARD */
+.purchase-card{background:var(--card);border:1px solid var(--border);padding:32px;position:sticky;top:88px;}
+.purchase-price{font-family:'Bebas Neue',sans-serif;font-size:52px;color:var(--accent);line-height:1;margin-bottom:4px;}
+.purchase-sub{font-size:12px;color:var(--muted);margin-bottom:24px;}
+.purchase-includes{margin-bottom:28px;}
+.pi-title{font-size:12px;font-family:'DM Mono',monospace;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px;}
+.pi-item{display:flex;align-items:center;gap:10px;font-size:13px;margin-bottom:10px;color:var(--text);}
+.pi-item::before{content:'✓';color:var(--green);font-weight:700;font-size:14px;}
+.buy-btn{width:100%;background:var(--accent);color:#000;border:none;padding:16px;font-family:'DM Sans',sans-serif;font-weight:700;font-size:15px;cursor:pointer;transition:all .2s;margin-bottom:10px;}
+.buy-btn:hover{background:#ffd060;transform:translateY(-2px);}
+.request-btn{width:100%;background:transparent;color:var(--text);border:1px solid var(--border);padding:14px;font-family:'DM Sans',sans-serif;font-weight:500;font-size:14px;cursor:pointer;transition:all .2s;}
+.request-btn:hover{border-color:var(--muted);background:var(--surface);}
+
+/* TABS */
+.tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:36px;gap:0;}
+.tab{padding:14px 28px;font-size:13px;font-weight:600;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s;letter-spacing:.3px;}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+.tab-content{display:none;}
+.tab-content.active{display:block;}
+
+/* DOCS */
+.docs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;}
+.doc-card{background:var(--card);border:1px solid var(--border);padding:24px;display:flex;align-items:center;gap:16px;cursor:pointer;transition:all .25s;}
+.doc-card:hover{border-color:var(--accent2);background:var(--card2);}
+.doc-icon{font-size:32px;flex-shrink:0;}
+.doc-info .doc-name{font-size:14px;font-weight:600;margin-bottom:4px;}
+.doc-info .doc-size{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;}
+.doc-download{margin-left:auto;color:var(--muted);font-size:18px;transition:color .2s;}
+.doc-card:hover .doc-download{color:var(--accent);}
+.locked-overlay{position:relative;}
+.locked-overlay::after{content:'🔒 Purchase to unlock';position:absolute;inset:0;background:rgba(10,10,15,.85);display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;}
+.doc-card.locked{opacity:.85;}
+
+/* CODE VIEWER */
+.code-block{background:#0d0d14;border:1px solid var(--border);padding:28px;font-family:'DM Mono',monospace;font-size:13px;line-height:1.7;color:#a0a0c0;overflow-x:auto;position:relative;}
+.code-block .keyword{color:var(--accent2);}
+.code-block .string{color:var(--green);}
+.code-block .comment{color:var(--muted);}
+.code-lang{position:absolute;top:12px;right:16px;font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;}
+
+/* ======= PAYMENT MODAL ======= */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;display:none;align-items:center;justify-content:center;backdrop-filter:blur(6px);}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--surface);border:1px solid var(--border);width:100%;max-width:520px;max-height:90vh;overflow-y:auto;}
+.modal-header{padding:28px 32px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+.modal-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:1px;}
+.modal-close{background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;transition:color .2s;}
+.modal-close:hover{color:var(--text);}
+.modal-body{padding:32px;}
+.modal-body .form-group{margin-bottom:18px;}
+.modal-body label{display:block;font-size:11px;font-family:'DM Mono',monospace;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:7px;}
+.modal-body input,.modal-body select,.modal-body textarea{width:100%;background:var(--card);border:1px solid var(--border);color:var(--text);padding:12px 16px;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;transition:border-color .2s;}
+.modal-body input:focus,.modal-body select:focus{border-color:var(--accent);}
+.modal-body select option{background:var(--surface);}
+.price-summary{background:var(--card);border:1px solid var(--border);padding:20px;margin-bottom:24px;}
+.ps-row{display:flex;justify-content:space-between;font-size:14px;margin-bottom:8px;color:var(--muted);}
+.ps-row.total{color:var(--text);font-weight:700;font-size:16px;border-top:1px solid var(--border);padding-top:12px;margin-top:8px;}
+.ps-row.total span:last-child{color:var(--accent);font-family:'Bebas Neue',sans-serif;font-size:22px;}
+.pay-btn{width:100%;background:var(--accent);color:#000;border:none;padding:16px;font-family:'DM Sans',sans-serif;font-weight:700;font-size:15px;cursor:pointer;transition:all .2s;}
+.pay-btn:hover{background:#ffd060;}
+.razorpay-badge{text-align:center;margin-top:12px;font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;}
+.form-row2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+
+/* ======= MY REQUESTS PAGE ======= */
+.requests-page{padding:48px 60px;}
+.requests-header{margin-bottom:40px;}
+.req-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:32px;}
+.req-tab{padding:12px 24px;font-size:13px;font-weight:600;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s;}
+.req-tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+.request-list{display:flex;flex-direction:column;gap:16px;}
+.request-item{background:var(--card);border:1px solid var(--border);padding:24px 28px;transition:border-color .25s;}
+.request-item:hover{border-color:var(--border2);}
+.ri-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;}
+.ri-title{font-size:16px;font-weight:600;}
+.ri-status{font-size:11px;font-family:'DM Mono',monospace;padding:4px 12px;letter-spacing:1px;}
+.status-pending{background:rgba(240,192,64,.1);color:var(--accent);border:1px solid rgba(240,192,64,.2);}
+.status-progress{background:rgba(79,143,255,.1);color:var(--accent2);border:1px solid rgba(79,143,255,.2);}
+.status-done{background:rgba(62,207,142,.1);color:var(--green);border:1px solid rgba(62,207,142,.2);}
+.ri-meta{display:flex;gap:24px;font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:16px;}
+.ri-actions{display:flex;gap:10px;flex-wrap:wrap;}
+.ri-btn{background:transparent;border:1px solid var(--border);color:var(--muted);padding:7px 16px;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .2s;}
+.ri-btn:hover{border-color:var(--muted);color:var(--text);}
+.ri-btn.danger{border-color:rgba(255,92,92,.3);color:var(--red);}
+.ri-btn.danger:hover{border-color:var(--red);background:rgba(255,92,92,.05);}
+.ri-btn.success{border-color:rgba(62,207,142,.3);color:var(--green);}
+.ri-btn.success:hover{border-color:var(--green);}
+.ri-progress{margin-top:16px;}
+.progress-bar{background:var(--border);height:4px;border-radius:0;overflow:hidden;margin-top:6px;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent));transition:width 1s;}
+.progress-label{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;display:flex;justify-content:space-between;}
+
+/* EDIT REQUEST MODAL */
+.edit-section{margin-top:20px;padding-top:20px;border-top:1px solid var(--border);}
+.edit-title{font-size:12px;font-family:'DM Mono',monospace;color:var(--accent);letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;}
+
+/* SUCCESS STATE */
+.success-screen{text-align:center;padding:60px 40px;}
+.success-icon{font-size:64px;margin-bottom:20px;animation:bounceIn .6s ease;}
+@keyframes bounceIn{0%{transform:scale(0);}60%{transform:scale(1.15);}100%{transform:scale(1);}}
+.success-title{font-family:'Bebas Neue',sans-serif;font-size:42px;letter-spacing:1.5px;margin-bottom:12px;color:var(--green);}
+.success-sub{color:var(--muted);font-size:14px;line-height:1.7;max-width:340px;margin:0 auto 28px;}
+
+/* TOAST */
+.toast{position:fixed;bottom:28px;right:28px;background:var(--green);color:#000;padding:14px 24px;font-weight:700;font-size:13px;z-index:1000;transform:translateY(80px);opacity:0;transition:all .4s cubic-bezier(.175,.885,.32,1.275);}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.error{background:var(--red);color:#fff;}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(22px);}to{opacity:1;transform:translateY(0);}}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  nav{padding:14px 20px;}
+  .nav-links{display:none;}
+  .hero,.domains-section,.how-section{padding:80px 20px 60px;}
+  .domain-page-header,.domain-page-body,.proj-detail,.requests-page{padding:32px 20px;}
+  .proj-header{grid-template-columns:1fr;}
+  .purchase-card{position:relative;top:0;}
+  .steps-grid{grid-template-columns:1fr 1fr;}
+  .form-row2{grid-template-columns:1fr;}
+  .hero-stats{gap:24px;flex-wrap:wrap;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo" onclick="goHome()">Project<span>Nest</span></div>
+  <ul class="nav-links">
+    <li><a onclick="goHome()">Home</a></li>
+    <li><a onclick="showDomains()">Domains</a></li>
+    <li><a onclick="showRequests()">My Requests</a></li>
+  </ul>
+  <div class="nav-right">
+    <button class="nav-btn" onclick="showRequests()">My Requests</button>
+    <button class="nav-btn primary" onclick="openPayModal(null)">Buy a Project</button>
+  </div>
+</nav>
+
+<!-- ===== HOME PAGE ===== -->
+<div id="page-home" class="page active">
+  <section class="hero">
+    <div class="hero-grid"></div>
+    <div class="hero-glow"></div>
+    <div class="hero-content">
+      <div class="hero-badge">🎓 FOR FINAL YEAR STUDENTS — INDIA</div>
+      <h1 class="hero-title">YOUR<br><span class="y">FINAL YEAR</span><br>PROJECT STARTS HERE</h1>
+      <p class="hero-sub">Struggling to find the right project? ProjectNest gives you curated ideas, expert mentors, full source code, documentation & PPTs.</p>
+      <div class="hero-actions">
+        <button class="btn-primary" onclick="showDomains()">Explore Projects</button>
+        <button class="btn-ghost" onclick="showRequests()">My Requests</button>
+      </div>
+      <div class="hero-stats">
+        <div><div class="stat-num">500+</div><div class="stat-label">Projects</div></div>
+        <div><div class="stat-num">12+</div><div class="stat-label">Domains</div></div>
+        <div><div class="stat-num">24hr</div><div class="stat-label">Response</div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="marquee-wrap">
+    <div class="marquee-track">
+      <span class="marquee-item"><span>→</span>MACHINE LEARNING</span><span class="marquee-item"><span>→</span>WEB DEVELOPMENT</span><span class="marquee-item"><span>→</span>IOT PROJECTS</span><span class="marquee-item"><span>→</span>BLOCKCHAIN</span><span class="marquee-item"><span>→</span>CYBERSECURITY</span><span class="marquee-item"><span>→</span>APP DEVELOPMENT</span><span class="marquee-item"><span>→</span>DATA SCIENCE</span><span class="marquee-item"><span>→</span>CLOUD COMPUTING</span>
+      <span class="marquee-item"><span>→</span>MACHINE LEARNING</span><span class="marquee-item"><span>→</span>WEB DEVELOPMENT</span><span class="marquee-item"><span>→</span>IOT PROJECTS</span><span class="marquee-item"><span>→</span>BLOCKCHAIN</span><span class="marquee-item"><span>→</span>CYBERSECURITY</span><span class="marquee-item"><span>→</span>APP DEVELOPMENT</span><span class="marquee-item"><span>→</span>DATA SCIENCE</span><span class="marquee-item"><span>→</span>CLOUD COMPUTING</span>
+    </div>
+  </div>
+
+  <section class="domains-section" id="domains-home">
+    <div class="sec-tag">// explore</div>
+    <h2 class="sec-title">BROWSE BY <span style="color:var(--accent)">DOMAIN</span></h2>
+    <p class="sec-sub">Click any domain to browse real projects with source code, docs & PPTs.</p>
+    <div class="domains-grid" id="home-domains-grid"></div>
+  </section>
+
+  <section class="how-section">
+    <div class="sec-tag">// process</div>
+    <h2 class="sec-title">HOW IT <span style="color:var(--accent)">WORKS</span></h2>
+    <div class="steps-grid">
+      <div class="step"><div class="step-n">01</div><div class="step-icon">🔍</div><div class="step-t">Browse Projects</div><div class="step-d">Pick a domain, explore project ideas with tech stack, difficulty & price.</div></div>
+      <div class="step"><div class="step-n">02</div><div class="step-icon">💳</div><div class="step-t">Unlock Full Access</div><div class="step-d">Pay once and get source code, documentation, PPT and mentor access.</div></div>
+      <div class="step"><div class="step-n">03</div><div class="step-icon">🛠️</div><div class="step-t">Build It</div><div class="step-d">Follow the kit, raise queries anytime, edit your request if needed.</div></div>
+      <div class="step"><div class="step-n">04</div><div class="step-icon">🏆</div><div class="step-t">Submit & Win</div><div class="step-d">Walk into your viva fully prepared with a project you truly understand.</div></div>
+    </div>
+  </section>
+</div>
+
+<!-- ===== DOMAIN LIST PAGE ===== -->
+<div id="page-domains" class="page">
+  <div class="domain-page-header">
+    <div class="breadcrumb"><span onclick="goHome()">Home</span> › <span>All Domains</span></div>
+    <h1 class="domain-page-title">EXPLORE <span style="color:var(--accent)">DOMAINS</span></h1>
+    <p class="domain-page-sub">Choose your engineering domain to find the perfect final year project.</p>
+  </div>
+  <div class="domain-page-body">
+    <div class="domains-grid" id="all-domains-grid"></div>
+  </div>
+</div>
+
+<!-- ===== PROJECTS PAGE ===== -->
+<div id="page-projects" class="page">
+  <div class="domain-page-header">
+    <div class="breadcrumb"><span onclick="goHome()">Home</span> › <span onclick="showDomains()">Domains</span> › <span id="proj-domain-name">ML</span></div>
+    <h1 class="domain-page-title" id="proj-page-title">MACHINE LEARNING</h1>
+    <p class="domain-page-sub" id="proj-page-sub">Browse all ML projects</p>
+  </div>
+  <div class="domain-page-body">
+    <div class="filter-bar" id="filter-bar">
+      <span style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;margin-right:4px;">FILTER:</span>
+      <button class="filter-btn active" onclick="filterProjects('all',this)">All</button>
+      <button class="filter-btn" onclick="filterProjects('easy',this)">Easy</button>
+      <button class="filter-btn" onclick="filterProjects('medium',this)">Medium</button>
+      <button class="filter-btn" onclick="filterProjects('hard',this)">Hard</button>
+    </div>
+    <div class="projects-grid" id="projects-grid"></div>
+  </div>
+</div>
+
+<!-- ===== PROJECT DETAIL PAGE ===== -->
+<div id="page-detail" class="page">
+  <div class="domain-page-header" style="padding:32px 60px;">
+    <div class="breadcrumb" id="detail-breadcrumb"></div>
+  </div>
+  <div class="proj-detail" id="detail-content"></div>
+</div>
+
+<!-- ===== MY REQUESTS PAGE ===== -->
+<div id="page-requests" class="page">
+  <div class="requests-page">
+    <div class="requests-header">
+      <div class="sec-tag">// dashboard</div>
+      <h1 class="sec-title">MY <span style="color:var(--accent)">REQUESTS</span></h1>
+    </div>
+    <div class="req-tabs">
+      <div class="req-tab active" onclick="reqTab('all',this)">All Requests</div>
+      <div class="req-tab" onclick="reqTab('pending',this)">Pending</div>
+      <div class="req-tab" onclick="reqTab('progress',this)">In Progress</div>
+      <div class="req-tab" onclick="reqTab('done',this)">Completed</div>
+    </div>
+    <div class="request-list" id="request-list"></div>
+  </div>
+</div>
+
+<!-- ===== PAYMENT MODAL ===== -->
+<div class="modal-overlay" id="pay-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="pay-modal-title">COMPLETE PURCHASE</div>
+      <button class="modal-close" onclick="closeModal('pay-modal')">✕</button>
+    </div>
+    <div class="modal-body" id="pay-modal-body"></div>
+  </div>
+</div>
+
+<!-- ===== EDIT REQUEST MODAL ===== -->
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">EDIT REQUEST</div>
+      <button class="modal-close" onclick="closeModal('edit-modal')">✕</button>
+    </div>
+    <div class="modal-body" id="edit-modal-body"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ============ DATA ============
+const DOMAINS = [
+  {id:'ml',icon:'🤖',name:'Machine Learning',count:80,color:'#4f8fff'},
+  {id:'web',icon:'🌐',name:'Web Development',count:65,color:'#f0c040'},
+  {id:'app',icon:'📱',name:'App Development',count:50,color:'#3ecf8e'},
+  {id:'iot',icon:'📡',name:'IoT / Embedded',count:45,color:'#ff8c42'},
+  {id:'blockchain',icon:'🔗',name:'Blockchain',count:30,color:'#9b59b6'},
+  {id:'cyber',icon:'🛡️',name:'Cybersecurity',count:28,color:'#ff5c5c'},
+  {id:'ds',icon:'📊',name:'Data Science',count:55,color:'#4f8fff'},
+  {id:'cloud',icon:'☁️',name:'Cloud Computing',count:35,color:'#3ecf8e'},
+  {id:'cv',icon:'👁️',name:'Computer Vision',count:40,color:'#f0c040'},
+  {id:'db',icon:'🗄️',name:'Database Systems',count:22,color:'#ff8c42'},
+  {id:'game',icon:'🎮',name:'Game Dev',count:18,color:'#9b59b6'},
+  {id:'custom',icon:'⚡',name:'Custom / Other',count:999,color:'#ff5c5c'},
+];
+
+const PROJECTS = {
+  ml:[
+    {id:'ml1',title:'AI-Based Disease Prediction System',desc:'Predicts multiple diseases (diabetes, heart disease, cancer) using ML models trained on clinical datasets with a web-based diagnostic interface.',tags:['Python','Scikit-learn','Flask','React'],difficulty:'medium',price:1499,includes:['Full Source Code','Project Report (80 pages)','PPT (20 slides)','Dataset files','Setup guide','1 Month Mentor Support'],codeSnippet:`<span class="keyword">import</span> pandas <span class="keyword">as</span> pd\n<span class="keyword">from</span> sklearn.ensemble <span class="keyword">import</span> RandomForestClassifier\n<span class="keyword">from</span> sklearn.model_selection <span class="keyword">import</span> train_test_split\n\n<span class="comment"># Load and preprocess data</span>\ndf = pd.read_csv(<span class="string">'diabetes.csv'</span>)\nX = df.drop(<span class="string">'Outcome'</span>, axis=1)\ny = df[<span class="string">'Outcome'</span>]\n\n<span class="comment"># Train model</span>\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)\nmodel = RandomForestClassifier(n_estimators=100)\nmodel.fit(X_train, y_train)`,docs:[{icon:'📄',name:'Project Report.pdf',size:'3.2 MB',locked:false},{icon:'📊',name:'Presentation.pptx',size:'8.5 MB',locked:false},{icon:'💾',name:'Source Code.zip',size:'12.1 MB',locked:true},{icon:'📋',name:'Dataset Files.zip',size:'4.7 MB',locked:true}]},
+    {id:'ml2',title:'Real-Time Fake News Detector',desc:'NLP-powered system that classifies news articles as real or fake using BERT embeddings and a fine-tuned transformer model.',tags:['Python','BERT','FastAPI','React'],difficulty:'hard',price:1999,includes:['Full Source Code','Pretrained Model weights','Project Report','PPT','API Documentation','2 Month Mentor Support'],codeSnippet:`<span class="keyword">from</span> transformers <span class="keyword">import</span> BertTokenizer, BertForSequenceClassification\n<span class="keyword">import</span> torch\n\ntokenizer = BertTokenizer.from_pretrained(<span class="string">'bert-base-uncased'</span>)\nmodel = BertForSequenceClassification.from_pretrained(<span class="string">'./fake-news-bert'</span>)\n\n<span class="keyword">def</span> predict(text):\n    inputs = tokenizer(text, return_tensors=<span class="string">'pt'</span>, truncation=True)\n    outputs = model(**inputs)\n    <span class="keyword">return</span> torch.argmax(outputs.logits).item()`,docs:[{icon:'📄',name:'Project Report.pdf',size:'4.1 MB',locked:false},{icon:'📊',name:'Presentation.pptx',size:'10 MB',locked:false},{icon:'💾',name:'Source Code + Model.zip',size:'340 MB',locked:true},{icon:'📋',name:'Research Paper Ref.pdf',size:'1.2 MB',locked:true}]},
+    {id:'ml3',title:'Student Performance Predictor',desc:'Predicts student exam results based on study habits, attendance and demographics using regression and classification models.',tags:['Python','Pandas','Streamlit','Matplotlib'],difficulty:'easy',price:899,includes:['Full Source Code','Project Report','PPT (15 slides)','Sample Dataset','Setup guide'],codeSnippet:`<span class="keyword">import</span> streamlit <span class="keyword">as</span> st\n<span class="keyword">import</span> pandas <span class="keyword">as</span> pd\n\nst.title(<span class="string">"Student Performance Predictor"</span>)\nhours = st.slider(<span class="string">'Study Hours/Day'</span>, 0, 12, 5)\nattendance = st.number_input(<span class="string">'Attendance %'</span>, 0, 100, 75)\n\n<span class="comment"># Predict using saved model</span>\nresult = model.predict([[hours, attendance]])\nst.success(<span class="string">f"Predicted Score: {result[0]:.1f}%"</span>)`,docs:[{icon:'📄',name:'Project Report.pdf',size:'2.1 MB',locked:false},{icon:'📊',name:'Presentation.pptx',size:'5.2 MB',locked:false},{icon:'💾',name:'Source Code.zip',size:'3.4 MB',locked:true}]},
+  ],
+  web:[
+    {id:'web1',title:'Hospital Management System',desc:'Full-stack web app for hospital operations: patient records, doctor appointments, billing, pharmacy, and admin dashboard.',tags:['React','Node.js','MongoDB','Tailwind'],difficulty:'hard',price:1799,includes:['Full Source Code','Project Report (90 pages)','PPT (25 slides)','DB Schema','Deployment guide','1 Month Support'],codeSnippet:`<span class="comment">// Patient appointment booking API</span>\napp.post(<span class="string">'/api/appointments'</span>, async (req, res) => {\n  <span class="keyword">const</span> { patientId, doctorId, date, time } = req.body;\n  <span class="keyword">const</span> appointment = <span class="keyword">new</span> Appointment({\n    patientId, doctorId, date, time,\n    status: <span class="string">'pending'</span>\n  });\n  <span class="keyword">await</span> appointment.save();\n  res.json({ success: <span class="keyword">true</span>, appointment });\n});`,docs:[{icon:'📄',name:'Project Report.pdf',size:'5.4 MB',locked:false},{icon:'📊',name:'Presentation.pptx',size:'12 MB',locked:false},{icon:'💾',name:'Source Code.zip',size:'28 MB',locked:true},{icon:'📋',name:'DB Schema Diagram.pdf',size:'0.8 MB',locked:true}]},
+    {id:'web2',title:'E-Learning Platform with AI Quiz',desc:'Online learning platform with video courses, AI-generated quizzes, progress tracking, and certificate generation.',tags:['React','Express','MongoDB','OpenAI'],difficulty:'medium',price:1599,includes:['Full Source Code','Project Report','PPT','API Docs','Setup Guide'],codeSnippet:`<span class="comment">// AI Quiz Generation</span>\n<span class="keyword">const</span> generateQuiz = <span class="keyword">async</span> (topic) => {\n  <span class="keyword">const</span> response = <span class="keyword">await</span> openai.chat.completions.create({\n    model: <span class="string">'gpt-3.5-turbo'</span>,\n    messages: [{ role: <span class="string">'user'</span>,\n      content: <span class="string">\`Generate 5 MCQs on \${topic}\`</span>\n    }]\n  });\n  <span class="keyword">return</span> parseQuizResponse(response);\n};`,docs:[{icon:'📄',name:'Project Report.pdf',size:'3.8 MB',locked:false},{icon:'📊',name:'Presentation.pptx',size:'9.2 MB',locked:false},{icon:'💾',name:'Source Code.zip',size:'19 MB',locked:true}]},
+  ],
+  iot:[
+    {id:'iot1',title:'Smart Home Automation System',desc:'IoT-based home automation using Arduino/Raspberry Pi with voice control, mobile app, and energy monitoring dashboard.',tags:['Arduino','Raspberry Pi','MQTT','React Native'],difficulty:'medium',price:1299,includes:['Full Source Code','Circuit Diagrams','Project Report','PPT','Component List','Setup Guide'],codeSnippet:`<span class="comment">// MQTT message handler</span>\nclient.on(<span class="string">'message'</span>, (topic, message) => {\n  <span class="keyword">const</span> cmd = JSON.parse(message.toString());\n  <span class="keyword">if</span> (topic === <span class="string">'home/lights'</span>) {\n    digitalWrite(LED_PIN, cmd.state === <span class="string">'ON'</span> ? HIGH : LOW);\n    publishStatus(<span class="string">'home/status'</span>, cmd.state);\n  }\n});`,docs:[{icon:'📄',name:'Project Report.pdf',size:'3.1 MB',locked:false},{icon:'📊',name:'Presentation.pptx',size:'7.8 MB',locked:false},{icon:'💾',name:'Source Code.zip',size:'5.2 MB',locked:true},{icon:'🔌',name:'Circuit Diagrams.pdf',size:'2.1 MB',locked:true}]},
+  ],
+  cyber:[
+    {id:'cyber1',title:'Network Intrusion Detection System',desc:'ML-based NIDS that detects anomalous network traffic patterns and alerts administrators with real-time visualization.',tags:['Python','Scikit-learn','Wireshark','Flask'],difficulty:'hard',price:1899,includes:['Full Source Code','Project Report','PPT','Sample PCAP files','Setup Guide','1 Month Support'],codeSnippet:`<span class="keyword">from</span> scapy.all <span class="keyword">import</span> sniff, IP, TCP\n<span class="keyword">import</span> joblib\n\nmodel = joblib.load(<span class="string">'ids_model.pkl'</span>)\n\n<span class="keyword">def</span> analyze_packet(pkt):\n    <span class="keyword">if</span> IP <span class="keyword">in</span> pkt:\n        features = extract_features(pkt)\n        pred = model.predict([features])[0]\n        <span class="keyword">if</span> pred == <span class="string">'anomaly'</span>:\n            alert(pkt[IP].src)`,docs:[{icon:'📄',name:'Project Report.pdf',size:'4.2 MB',locked:false},{icon:'📊',name:'Presentation.pptx',size:'9.5 MB',locked:false},{icon:'💾',name:'Source Code.zip',size:'11 MB',locked:true}]},
+  ],
+  blockchain:[
+    {id:'bc1',title:'Decentralized Voting System',desc:'Transparent, tamper-proof voting system on Ethereum blockchain with MetaMask authentication and real-time result display.',tags:['Solidity','Web3.js','React','MetaMask'],difficulty:'hard',price:1999,includes:['Smart Contracts','Frontend Code','Project Report','PPT','Deployment Guide','Test Cases'],codeSnippet:`<span class="comment">// Solidity Voting Contract</span>\n<span class="keyword">contract</span> Voting {\n    <span class="keyword">mapping</span>(address => <span class="keyword">bool</span>) <span class="keyword">public</span> hasVoted;\n    <span class="keyword">mapping</span>(<span class="keyword">uint</span> => <span class="keyword">uint</span>) <span class="keyword">public</span> voteCount;\n\n    <span class="keyword">function</span> vote(<span class="keyword">uint</span> candidateId) <span class="keyword">public</span> {\n        require(!hasVoted[msg.sender], <span class="string">"Already voted"</span>);\n        hasVoted[msg.sender] = <span class="keyword">true</span>;\n        voteCount[candidateId]++;\n    }\n}`,docs:[{icon:'📄',name:'Project Report.pdf',size:'3.7 MB',locked:false},{icon:'📊',name:'Presentation.pptx',size:'8.1 MB',locked:false},{icon:'💾',name:'Source Code.zip',size:'7.4 MB',locked:true}]},
+  ],
+  ds:[
+    {id:'ds1',title:'Stock Market Analysis Dashboard',desc:'Interactive dashboard analyzing stock data with forecasting using LSTM, technical indicators, and sentiment analysis from news.',tags:['Python','Plotly Dash','TensorFlow','yFinance'],difficulty:'medium',price:1399,includes:['Full Source Code','Project Report','PPT','Jupyter Notebooks','Setup Guide'],codeSnippet:`<span class="keyword">import</span> yfinance <span class="keyword">as</span> yf\n<span class="keyword">import</span> plotly.graph_objects <span class="keyword">as</span> go\n\nstock = yf.Ticker(<span class="string">"RELIANCE.NS"</span>)\ndf = stock.history(period=<span class="string">"1y"</span>)\n\nfig = go.Figure(data=[go.Candlestick(\n    x=df.index, open=df[<span class="string">'Open'</span>],\n    high=df[<span class="string">'High'</span>], low=df[<span class="string">'Low'</span>],\n    close=df[<span class="string">'Close'</span>]\n)])\nfig.show()`,docs:[{icon:'📄',name:'Project Report.pdf',size:'3.3 MB',locked:false},{icon:'📊',name:'Presentation.pptx',size:'7.6 MB',locked:false},{icon:'💾',name:'Source Code.zip',size:'8.2 MB',locked:true}]},
+  ],
+};
+// fill missing domains
+['app','cloud','cv','db','game','custom'].forEach(id=>{
+  if(!PROJECTS[id]) PROJECTS[id]=[{id:id+'1',title:'Coming Soon — Custom Projects Available',desc:'We\'re adding more projects to this domain. Meanwhile, submit a custom project request and our team will build a tailored project just for you.',tags:['Custom'],difficulty:'easy',price:999,includes:['Full Source Code','Project Report','PPT','Mentor Support'],codeSnippet:`<span class="comment">// Custom project code coming soon...</span>\nconsole.log(<span class="string">"Contact us for custom projects!"</span>);`,docs:[{icon:'📄',name:'Project Report.pdf',size:'—',locked:true},{icon:'📊',name:'Presentation.pptx',size:'—',locked:true},{icon:'💾',name:'Source Code.zip',size:'—',locked:true}]}];
+});
+
+// ============ STATE ============
+let currentDomain = null;
+let currentFilter = 'all';
+let myRequests = [
+  {id:'req1',title:'AI Disease Prediction System',domain:'Machine Learning',status:'progress',date:'Feb 20, 2026',progress:65,paid:true,amount:1499,notes:''},
+  {id:'req2',title:'Custom Web Portal',domain:'Web Development',status:'pending',date:'Feb 25, 2026',progress:10,paid:false,amount:0,notes:'Need hospital module'},
+  {id:'req3',title:'Smart Home IoT Project',domain:'IoT / Embedded',status:'done',date:'Jan 15, 2026',progress:100,paid:true,amount:1299,notes:''},
+];
+
+// ============ NAVIGATION ============
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  window.scrollTo(0,0);
+}
+function goHome(){showPage('home');}
+function showDomains(){renderAllDomains();showPage('domains');}
+function showRequests(){renderRequests('all');showPage('requests');}
+
+// ============ RENDER DOMAINS ============
+function renderDomainGrid(containerId){
+  const el = document.getElementById(containerId);
+  if(!el) return;
+  el.innerHTML = DOMAINS.map(d=>`
+    <div class="domain-card" onclick="openDomain('${d.id}')">
+      <div class="d-icon">${d.icon}</div>
+      <div class="d-name">${d.name}</div>
+      <div class="d-count">${d.count === 999 ? 'Unlimited' : d.count+'+'} projects</div>
+      <div class="d-arrow">→</div>
+    </div>
+  `).join('');
+}
+function renderAllDomains(){renderDomainGrid('all-domains-grid');}
+
+// ============ OPEN DOMAIN ============
+function openDomain(domainId){
+  currentDomain = domainId;
+  currentFilter = 'all';
+  const domain = DOMAINS.find(d=>d.id===domainId);
+  document.getElementById('proj-domain-name').textContent = domain.name;
+  document.getElementById('proj-page-title').textContent = domain.name.toUpperCase();
+  document.getElementById('proj-page-sub').textContent = `${domain.count === 999 ? 'Unlimited' : domain.count+'+'} projects available — source code, docs & PPT included`;
+  renderProjects();
+  showPage('projects');
+}
+
+function renderProjects(){
+  const list = PROJECTS[currentDomain] || [];
+  const filtered = currentFilter === 'all' ? list : list.filter(p=>p.difficulty===currentFilter);
+  const grid = document.getElementById('projects-grid');
+  if(filtered.length===0){grid.innerHTML='<p style="color:var(--muted);font-size:14px;">No projects found for this filter.</p>';return;}
+  grid.innerHTML = filtered.map(p=>`
+    <div class="project-card" onclick="openProject('${currentDomain}','${p.id}')">
+      <div class="pc-tags">
+        ${p.tags.map(t=>`<span class="pc-tag">${t}</span>`).join('')}
+        <span class="pc-tag ${p.difficulty}">${p.difficulty.toUpperCase()}</span>
+      </div>
+      <div class="pc-title">${p.title}</div>
+      <div class="pc-desc">${p.desc}</div>
+      <div class="pc-footer">
+        <div class="pc-price">₹${p.price.toLocaleString()} <small>ONE-TIME</small></div>
+        <button class="pc-btn">VIEW PROJECT →</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterProjects(f,btn){
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderProjects();
+}
+
+// ============ OPEN PROJECT ============
+function openProject(domainId, projId){
+  const domain = DOMAINS.find(d=>d.id===domainId);
+  const proj = (PROJECTS[domainId]||[]).find(p=>p.id===projId);
+  if(!proj) return;
+
+  document.getElementById('detail-breadcrumb').innerHTML =
+    `<span onclick="goHome()">Home</span> › <span onclick="showDomains()">Domains</span> › <span onclick="openDomain('${domainId}')">${domain.name}</span> › <span>${proj.title}</span>`;
+
+  document.getElementById('detail-content').innerHTML = `
+    <div class="proj-header">
+      <div>
+        <div class="proj-tags">
+          ${proj.tags.map(t=>`<span class="tech-tag">${t}</span>`).join('')}
+          <span class="pc-tag ${proj.difficulty}">${proj.difficulty.toUpperCase()}</span>
+        </div>
+        <h1 class="proj-title">${proj.title}</h1>
+        <p class="proj-desc">${proj.desc}</p>
+        <div class="proj-meta">
+          <div class="meta-item"><div class="meta-label">Tech Stack</div><div class="meta-val">${proj.tags.join(', ')}</div></div>
+          <div class="meta-item"><div class="meta-label">Difficulty</div><div class="meta-val">${proj.difficulty.charAt(0).toUpperCase()+proj.difficulty.slice(1)}</div></div>
+          <div class="meta-item"><div class="meta-label">Domain</div><div class="meta-val">${domain.name}</div></div>
+          <div class="meta-item"><div class="meta-label">Delivery</div><div class="meta-val">Instant Access</div></div>
+        </div>
+      </div>
+      <div class="purchase-card">
+        <div class="purchase-price">₹${proj.price.toLocaleString()}</div>
+        <div class="purchase-sub">One-time payment • Lifetime access</div>
+        <div class="purchase-includes">
+          <div class="pi-title">What's Included</div>
+          ${proj.includes.map(i=>`<div class="pi-item">${i}</div>`).join('')}
+        </div>
+        <button class="buy-btn" onclick="openPayModal('${proj.id}','${domainId}')">BUY THIS PROJECT ₹${proj.price.toLocaleString()}</button>
+        <button class="request-btn" onclick="openCustomRequest('${proj.title}')">📋 Request Custom Version</button>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('overview',this)">Overview</div>
+      <div class="tab" onclick="switchTab('code',this)">Source Code Preview</div>
+      <div class="tab" onclick="switchTab('docs',this)">Documents & PPT</div>
+    </div>
+
+    <div class="tab-content active" id="tab-overview">
+
+      <!-- LIVE DEMO BANNER -->
+      <div style="background:linear-gradient(135deg,rgba(79,143,255,.1),rgba(62,207,142,.08));border:1px solid rgba(79,143,255,.25);padding:28px 32px;margin-bottom:32px;max-width:900px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;">
+        <div>
+          <div style="font-size:10px;font-family:'DM Mono',monospace;color:var(--accent2);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;">🌐 LIVE DEPLOYED PROJECT</div>
+          <div style="font-size:18px;font-weight:600;margin-bottom:6px;">${proj.title}</div>
+          <div style="font-size:13px;color:var(--muted);">Hosted on Vercel + Render • MongoDB Atlas • See it working live before you buy</div>
+          <div style="display:flex;gap:16px;margin-top:14px;flex-wrap:wrap;">
+            <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--green);font-family:'DM Mono',monospace;"><span style="width:7px;height:7px;background:var(--green);border-radius:50%;display:inline-block;animation:pulse 1.5s infinite;"></span>LIVE</span>
+            <span style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;">Last updated: Feb 2026</span>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <a href="#" onclick="toast('Opening live demo...');return false;" style="display:flex;align-items:center;gap:10px;background:var(--accent2);color:#fff;padding:12px 24px;font-family:'DM Sans',sans-serif;font-weight:700;font-size:13px;text-decoration:none;transition:opacity .2s;" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+            🚀 VIEW LIVE DEMO
+          </a>
+          <a href="#" onclick="toast('Opening demo video...');return false;" style="display:flex;align-items:center;gap:10px;background:transparent;color:var(--text);border:1px solid var(--border);padding:11px 24px;font-family:'DM Sans',sans-serif;font-weight:500;font-size:13px;text-decoration:none;transition:all .2s;" onmouseover="this.style.borderColor='var(--muted)'" onmouseout="this.style.borderColor='var(--border)'">
+            ▶ WATCH DEMO VIDEO
+          </a>
+        </div>
+      </div>
+
+      <!-- SCREENSHOTS PREVIEW -->
+      <div style="margin-bottom:32px;max-width:900px;">
+        <div style="font-size:11px;font-family:'DM Mono',monospace;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;">PROJECT SCREENSHOTS</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+          ${['Dashboard','Login Page','Analytics'].map((s,i)=>`
+            <div style="background:var(--card);border:1px solid var(--border);aspect-ratio:16/9;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;transition:border-color .2s;position:relative;overflow:hidden;" onmouseover="this.style.borderColor='var(--accent2)'" onmouseout="this.style.borderColor='var(--border)'" onclick="toast('Full screenshots unlocked after purchase')">
+              <div style="position:absolute;inset:0;background:linear-gradient(135deg,#0d1520,#101820);"></div>
+              <div style="position:relative;z-index:1;font-size:28px;">${['📊','🔐','📈'][i]}</div>
+              <div style="position:relative;z-index:1;font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;">${s.toUpperCase()}</div>
+              <div style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,.6);color:var(--muted);font-size:10px;padding:2px 8px;font-family:'DM Mono',monospace;">PREVIEW</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <!-- STATS GRID -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;max-width:900px;margin-bottom:32px;">
+        <div class="meta-item"><div class="meta-label">Build Time</div><div class="meta-val" style="color:var(--accent)">2–3 Weeks</div></div>
+        <div class="meta-item"><div class="meta-label">Viva Support</div><div class="meta-val" style="color:var(--green)">✓ Included</div></div>
+        <div class="meta-item"><div class="meta-label">Report Pages</div><div class="meta-val">60–90 Pages</div></div>
+        <div class="meta-item"><div class="meta-label">PPT Slides</div><div class="meta-val">15–25 Slides</div></div>
+      </div>
+
+      <!-- ROADMAP -->
+      <div style="padding:24px 28px;background:var(--card);border:1px solid var(--border);max-width:700px;">
+        <div class="meta-label" style="margin-bottom:16px;">PROJECT ROADMAP</div>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          ${['Week 1: Setup & Architecture Planning','Week 2: Core Development & Integration','Week 3: Testing, Docs & PPT Preparation','Final: Submission Ready 🏆'].map((s,i)=>`
+            <div style="display:flex;align-items:center;gap:14px;font-size:13px;">
+              <span style="width:26px;height:26px;background:var(--accent);color:#000;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;flex-shrink:0;">${i+1}</span>
+              <span>${s}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-content" id="tab-code">
+      <div style="margin-bottom:16px;font-size:13px;color:var(--muted);">Preview of the source code structure. Full code unlocked after purchase.</div>
+      <div class="code-block">
+        <div class="code-lang">${proj.tags[0]}</div>
+        ${proj.codeSnippet}
+      </div>
+      <div style="margin-top:16px;padding:16px 20px;background:rgba(240,192,64,.06);border:1px solid rgba(240,192,64,.15);font-size:13px;color:var(--muted);">
+        🔒 Full source code (${proj.includes.find(i=>i.includes('Code'))||'Source Code'}) is available after purchase.
+      </div>
+    </div>
+
+    <div class="tab-content" id="tab-docs">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;padding:14px 20px;background:rgba(255,92,92,.06);border:1px solid rgba(255,92,92,.15);">
+        <span style="font-size:20px;">🔒</span>
+        <div>
+          <div style="font-size:13px;font-weight:600;margin-bottom:2px;">All documents are locked</div>
+          <div style="font-size:12px;color:var(--muted);">Purchase this project to instantly unlock the Project Report, PPT, Source Code and all other files.</div>
+        </div>
+        <button class="pc-btn" style="margin-left:auto;white-space:nowrap;" onclick="openPayModal('${proj.id}','${domainId}')">UNLOCK NOW</button>
+      </div>
+      <div class="docs-grid">
+        ${proj.docs.map(d=>`
+          <div class="doc-card locked" style="cursor:pointer;" onclick="openPayModal('${proj.id}','${domainId}')">
+            <div class="doc-icon" style="filter:grayscale(1);opacity:.45;">${d.icon}</div>
+            <div class="doc-info">
+              <div class="doc-name" style="opacity:.7;">${d.name}</div>
+              <div class="doc-size" style="color:var(--red);opacity:.9;">🔒 Locked — Purchase to unlock</div>
+            </div>
+            <span class="doc-download" style="color:var(--red);opacity:.7;">🔒</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+  showPage('detail');
+}
+
+function switchTab(tabId, btn){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  const tc = document.getElementById('tab-'+tabId);
+  if(tc) tc.classList.add('active');
+}
+
+// ============ PAYMENT MODAL ============
+function openPayModal(projId, domainId){
+  let proj = null;
+  if(projId && domainId) proj = (PROJECTS[domainId]||[]).find(p=>p.id===projId);
+  const title = proj ? proj.title : 'Custom Project';
+  const price = proj ? proj.price : 999;
+
+  document.getElementById('pay-modal-title').textContent = 'COMPLETE PURCHASE';
+  document.getElementById('pay-modal-body').innerHTML = `
+    <div class="price-summary">
+      <div class="ps-row"><span>${title}</span></div>
+      <div class="ps-row"><span>Platform Fee</span><span>₹0</span></div>
+      <div class="ps-row total"><span>Total</span><span>₹${price.toLocaleString()}</span></div>
+    </div>
+    <div class="form-group"><label>Full Name</label><input id="pay-name" placeholder="Your full name"/></div>
+    <div class="form-group"><label>Email</label><input id="pay-email" type="email" placeholder="your@email.com"/></div>
+    <div class="form-group"><label>Phone</label><input id="pay-phone" placeholder="+91 9876543210"/></div>
+    <div class="form-group"><label>College</label><input id="pay-college" placeholder="Your college name"/></div>
+    <div class="form-row2">
+      <div class="form-group"><label>Department</label>
+        <select id="pay-dept"><option value="">Select</option><option>CSE</option><option>IT</option><option>ECE</option><option>EEE</option><option>Other</option></select>
+      </div>
+      <div class="form-group"><label>Semester</label>
+        <select id="pay-sem"><option value="">Select</option><option>7th</option><option>8th</option></select>
+      </div>
+    </div>
+    <div class="form-group"><label>Special Requirements (optional)</label><textarea id="pay-notes" placeholder="Any specific changes, tech preferences..." style="resize:vertical;min-height:80px;width:100%;background:var(--card);border:1px solid var(--border);color:var(--text);padding:12px;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;"></textarea></div>
+    <button class="pay-btn" onclick="processPayment('${projId||'custom'}','${title}',${price})">PAY ₹${price.toLocaleString()} via RAZORPAY →</button>
+    <div class="razorpay-badge">🔒 Secured by Razorpay • UPI • Cards • Net Banking</div>
+  `;
+  openModal('pay-modal');
+}
+
+function processPayment(projId, title, price){
+  const name = document.getElementById('pay-name').value.trim();
+  const email = document.getElementById('pay-email').value.trim();
+  const phone = document.getElementById('pay-phone').value.trim();
+  const college = document.getElementById('pay-college').value.trim();
+  if(!name||!email||!phone||!college){toast('Please fill all required fields','error');return;}
+
+  // Simulate payment processing
+  document.getElementById('pay-modal-body').innerHTML = `
+    <div style="text-align:center;padding:40px;">
+      <div style="font-size:40px;margin-bottom:16px;animation:spin 1s linear infinite;">⏳</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:1px;margin-bottom:8px;">Processing Payment...</div>
+      <div style="color:var(--muted);font-size:13px;">Connecting to Razorpay...</div>
+    </div>
+    <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+  `;
+  setTimeout(()=>{
+    document.getElementById('pay-modal-body').innerHTML = `
+      <div class="success-screen">
+        <div class="success-icon">🎉</div>
+        <div class="success-title">PAYMENT SUCCESSFUL!</div>
+        <div class="success-sub">Your order for <strong>${title}</strong> is confirmed. We'll send download links to <strong>${email}</strong> within 30 minutes.</div>
+        <button class="pay-btn" style="max-width:280px;margin:0 auto;" onclick="addRequestFromPurchase('${title}',${price});closeModal('pay-modal')">VIEW MY REQUESTS</button>
+      </div>
+    `;
+    toast('🎉 Payment successful! Check your email.');
+  },2200);
+}
+
+function addRequestFromPurchase(title, amount){
+  const newReq = {
+    id:'req'+Date.now(),
+    title,
+    domain:'Purchased Project',
+    status:'progress',
+    date: new Date().toLocaleDateString('en-IN',{month:'short',day:'numeric',year:'numeric'}),
+    progress:15,
+    paid:true,
+    amount,
+    notes:''
+  };
+  myRequests.unshift(newReq);
+  showRequests();
+}
+
+// ============ CUSTOM REQUEST ============
+function openCustomRequest(projTitle){
+  closeModal('pay-modal');
+  document.getElementById('edit-modal-body').innerHTML = `
+    <div style="margin-bottom:20px;font-size:13px;color:var(--muted);">Submit a custom project request with your specific requirements.</div>
+    <div class="form-group"><label>Your Name</label><input id="cr-name" placeholder="Full name"/></div>
+    <div class="form-group"><label>Email</label><input id="cr-email" type="email" placeholder="your@email.com"/></div>
+    <div class="form-group"><label>Based on</label><input value="${projTitle}" readonly style="width:100%;background:var(--card);border:1px solid var(--border);color:var(--muted);padding:12px;font-size:14px;font-family:'DM Sans',sans-serif;"/></div>
+    <div class="form-group"><label>Custom Requirements</label><textarea id="cr-notes" placeholder="What changes or specific features do you need?" style="resize:vertical;min-height:100px;width:100%;background:var(--card);border:1px solid var(--border);color:var(--text);padding:12px;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;"></textarea></div>
+    <div class="form-group"><label>Deadline</label><input id="cr-deadline" type="date" style="width:100%;background:var(--card);border:1px solid var(--border);color:var(--text);padding:12px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;"/></div>
+    <button class="pay-btn" onclick="submitCustomRequest()">SUBMIT CUSTOM REQUEST</button>
+  `;
+  document.getElementById('edit-modal').querySelector('.modal-title').textContent = 'CUSTOM REQUEST';
+  openModal('edit-modal');
+}
+
+function submitCustomRequest(){
+  const name = document.getElementById('cr-name').value.trim();
+  const email = document.getElementById('cr-email').value.trim();
+  if(!name||!email){toast('Please fill name and email','error');return;}
+  const newReq = {id:'req'+Date.now(),title:'Custom Project Request',domain:'Custom',status:'pending',date:new Date().toLocaleDateString('en-IN',{month:'short',day:'numeric',year:'numeric'}),progress:5,paid:false,amount:0,notes:document.getElementById('cr-notes').value};
+  myRequests.unshift(newReq);
+  closeModal('edit-modal');
+  toast('Custom request submitted! We\'ll respond in 24hrs.');
+}
+
+// ============ MY REQUESTS ============
+function renderRequests(filter){
+  const list = filter==='all' ? myRequests : myRequests.filter(r=>r.status===filter);
+  const el = document.getElementById('request-list');
+  if(list.length===0){el.innerHTML='<div style="text-align:center;padding:60px;color:var(--muted);font-family:\'DM Mono\',monospace;font-size:13px;">NO REQUESTS FOUND</div>';return;}
+  el.innerHTML = list.map(r=>`
+    <div class="request-item" id="req-${r.id}">
+      <div class="ri-top">
+        <div class="ri-title">${r.title}</div>
+        <span class="ri-status status-${r.status}">${r.status==='progress'?'IN PROGRESS':r.status.toUpperCase()}</span>
+      </div>
+      <div class="ri-meta">
+        <span>📁 ${r.domain}</span>
+        <span>📅 ${r.date}</span>
+        ${r.paid?`<span style="color:var(--green);">✓ PAID ₹${r.amount.toLocaleString()}</span>`:'<span style="color:var(--red);">✗ UNPAID</span>'}
+      </div>
+      ${r.notes?`<div style="font-size:13px;color:var(--muted);margin-bottom:12px;padding:10px 14px;background:var(--surface);border-left:2px solid var(--border);">${r.notes}</div>`:''}
+      <div class="ri-progress">
+        <div class="progress-label"><span>Progress</span><span>${r.progress}%</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${r.progress}%"></div></div>
+      </div>
+      <div class="ri-actions" style="margin-top:16px;">
+        ${r.status!=='done'?`<button class="ri-btn" onclick="openEditRequest('${r.id}')">✏️ Edit Request</button>`:''}
+        ${!r.paid && r.status!=='done'?`<button class="ri-btn success" onclick="openPayModal(null)">💳 Make Payment</button>`:''}
+        ${r.status==='done'?`<button class="ri-btn success" onclick="toast('Downloading your files...')">⬇ Download Files</button>`:''}
+        <button class="ri-btn" onclick="openUpdateRequest('${r.id}')">💬 Send Update</button>
+        <button class="ri-btn danger" onclick="cancelRequest('${r.id}')">✕ Cancel</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function reqTab(filter,btn){
+  document.querySelectorAll('.req-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  renderRequests(filter);
+}
+
+function openEditRequest(reqId){
+  const req = myRequests.find(r=>r.id===reqId);
+  if(!req) return;
+  document.getElementById('edit-modal').querySelector('.modal-title').textContent = 'EDIT REQUEST';
+  document.getElementById('edit-modal-body').innerHTML = `
+    <div style="margin-bottom:20px;">
+      <div style="font-size:16px;font-weight:600;margin-bottom:4px;">${req.title}</div>
+      <div style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;">${req.domain} • ${req.date}</div>
+    </div>
+    <div class="form-group"><label>Update Project Title</label><input id="edit-title" value="${req.title}" style="width:100%;background:var(--card);border:1px solid var(--border);color:var(--text);padding:12px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;"/></div>
+    <div class="form-group"><label>Additional Notes / Change Request</label>
+      <textarea id="edit-notes" placeholder="Describe what you want to change or add..." style="resize:vertical;min-height:120px;width:100%;background:var(--card);border:1px solid var(--border);color:var(--text);padding:12px;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;">${req.notes||''}</textarea>
+    </div>
+    <div class="form-group"><label>New Deadline (optional)</label>
+      <input id="edit-deadline" type="date" style="width:100%;background:var(--card);border:1px solid var(--border);color:var(--text);padding:12px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;"/>
+    </div>
+    <button class="pay-btn" onclick="saveEditRequest('${reqId}')">SAVE CHANGES</button>
+  `;
+  openModal('edit-modal');
+}
+
+function saveEditRequest(reqId){
+  const req = myRequests.find(r=>r.id===reqId);
+  if(!req) return;
+  req.title = document.getElementById('edit-title').value.trim() || req.title;
+  req.notes = document.getElementById('edit-notes').value.trim();
+  closeModal('edit-modal');
+  renderRequests('all');
+  toast('Request updated successfully!');
+}
+
+function openUpdateRequest(reqId){
+  const req = myRequests.find(r=>r.id===reqId);
+  document.getElementById('edit-modal').querySelector('.modal-title').textContent = 'SEND UPDATE';
+  document.getElementById('edit-modal-body').innerHTML = `
+    <div style="margin-bottom:20px;font-size:13px;color:var(--muted);">Send a message to your mentor about <strong style="color:var(--text);">${req.title}</strong></div>
+    <div class="form-group"><label>Message</label>
+      <textarea id="upd-msg" placeholder="e.g. I need the login module changed, or Can you explain the ML model..." style="resize:vertical;min-height:140px;width:100%;background:var(--card);border:1px solid var(--border);color:var(--text);padding:12px;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;"></textarea>
+    </div>
+    <div class="form-group"><label>Attach File (optional)</label>
+      <input type="file" style="width:100%;background:var(--card);border:1px solid var(--border);color:var(--text);padding:12px;font-size:13px;font-family:'DM Sans',sans-serif;"/>
+    </div>
+    <button class="pay-btn" onclick="sendUpdate()">SEND MESSAGE</button>
+  `;
+  openModal('edit-modal');
+}
+
+function sendUpdate(){
+  const msg = document.getElementById('upd-msg').value.trim();
+  if(!msg){toast('Please type a message','error');return;}
+  closeModal('edit-modal');
+  toast('Message sent to your mentor! Reply within 24hrs.');
+}
+
+function cancelRequest(reqId){
+  if(!confirm('Are you sure you want to cancel this request?')) return;
+  myRequests = myRequests.filter(r=>r.id!==reqId);
+  renderRequests('all');
+  toast('Request cancelled.','error');
+}
+
+// ============ MODAL HELPERS ============
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.modal-overlay').forEach(m=>{
+  m.addEventListener('click',e=>{if(e.target===m) m.classList.remove('open');});
+});
+
+// ============ TOAST ============
+function toast(msg, type){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (type==='error'?' error':'');
+  setTimeout(()=>t.classList.remove('show'),3500);
+}
+
+// ============ INIT ============
+renderDomainGrid('home-domains-grid');
+
+// Animate on scroll
+const obs = new IntersectionObserver(entries=>{
+  entries.forEach(el=>{if(el.isIntersecting){el.target.style.opacity='1';el.target.style.transform='translateY(0)';}});
+},{threshold:.08});
+document.querySelectorAll('.domain-card,.step,.project-card').forEach(el=>{
+  el.style.opacity='0';el.style.transform='translateY(20px)';el.style.transition='opacity .4s ease,transform .4s ease';
+  obs.observe(el);
+});
+</script>
+</body>
+</html>
